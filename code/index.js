@@ -4,6 +4,8 @@ const morgan = require('morgan');
 const {Prohairesis} = require('prohairesis');
 const bodyParser = require('body-parser');
 const { response } = require('express');
+// const format = require('date-format');
+const moment = require('moment');
 
 const app = express();
 const port = process.env.PORT || 8888;
@@ -45,7 +47,82 @@ app
             email: body.email,
         })
 
-        res.end('Added user');
+        let jsonResponse = {status: "OK",message: "User was added"};
+        res.status(200).json(jsonResponse);
+    })
+
+    .get('/api/getAllData', async (req,res) => {
+        const body = req.body;
+        
+        let results = await database.query(`
+        select * from user_data order by id desc
+        `)
+
+        let data = [];
+        results.forEach(function(el){
+            data.push([
+                '<a href="/detail.html?id='+el.id+'">'+el.id+'</a>',
+                el.firstname,
+                el.lastname,
+                el.email,
+                moment(el.date_added).format("dddd, MMMM Do YYYY, h:mm:ss a"),
+                '<button type="button" data-delete="'+el.id+'">Delete</button>'
+            ]);
+        })
+
+        let jsonResponse = {data: data};
+        res.status(200).json(jsonResponse);
+
+    })
+
+    .get('/api/user/detail', async (req,res) => {
+        const body = req.query;
+        
+        let results = await database.getOne(`
+        select * from user_data where id = @id
+        `,{
+            id: body.id,
+        })
+
+
+        let jsonResponse = {status: "OK",data: results};
+        res.status(200).json(jsonResponse);
+
+    })
+
+    .post('/api/user/update', async (req,res) => {
+        const body = req.body;
+        
+        await database.execute(`
+        UPDATE user_data SET firstname = @firstname, lastname = @lastname, email = @email
+        WHERE id = @id
+        `,{
+            firstname: body.first,
+            id: body.id,
+            lastname: body.last,
+            email: body.email
+        })
+
+
+        let jsonResponse = {status: "OK",message: "User updated"};
+        res.status(200).json(jsonResponse);
+
+    })
+
+    .post('/api/user/delete', async (req,res) => {
+        const body = req.body;
+        
+        await database.execute(`
+        DELETE FROM user_data 
+        WHERE id = @id
+        `,{
+            id: body.id,
+        })
+
+
+        let jsonResponse = {status: "OK",message: "User deleted"};
+        res.status(200).json(jsonResponse);
+
     })
 
     .listen(port, () => console.log(`Server listening on port ${port}`));
