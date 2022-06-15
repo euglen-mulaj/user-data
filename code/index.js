@@ -162,7 +162,7 @@ app
     let data = [];
     results.forEach(function (el) {
       data.push([
-        '<a href="/detail.html?id=' + el.id + '">' + el.id + "</a>",
+        '<a href="/detail?id=' + el.id + '">' + el.id + "</a>",
         el.firstname,
         el.lastname,
         el.email,
@@ -173,6 +173,16 @@ app
 
     let jsonResponse = { data: data };
     res.status(200).json(jsonResponse);
+  })
+
+  .get("/detail", async (req, res) => {
+    if (!request.session.loggedin) {
+      // Output username
+      response.sendFile(path.join(__dirname+'/public' + '/register.html'));
+    } else {
+      // logged in
+      response.sendFile(path.join(__dirname+'/public' + '/detail.html'));
+    }
   })
 
   .get("/api/user/detail", async (req, res) => {
