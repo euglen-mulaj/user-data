@@ -9,6 +9,9 @@ const moment = require("moment");
 //session library node js
 const session = require("express-session");
 const path = require('path');
+//encrypting password
+const bcrypt = require("bcrypt");
+
 
 
 const app = express();
@@ -67,15 +70,24 @@ app
 	// Ensure the input fields exists and are not empty
 	if (username && password) {
 		// Execute SQL query that'll select the account from the database based on the specified username and password
-		let results = await database.query('SELECT * FROM accounts WHERE username = @username AND password = @password', 
+		let results = await database.query('SELECT * FROM accounts WHERE username = @username', 
         {username: username, password: password});
 			if (results.length > 0) {
+                console.log(results);
+                const validPassword = await bcrypt.compare(password, results[0].password);
+                console.log(validPassword);
+                if(validPassword){
 				// Authenticate the user
 				request.session.loggedin = true;
 				request.session.username = username;
 				// Redirect to home page
 				response.redirect('/dashboard');
                 // response.sendFile(path.join(__dirname+'/public' + '/index.html'));
+                }else{
+                    response.send('Incorrect Username and/or Password!');
+
+                }
+
             } else {
 				response.send('Incorrect Username and/or Password!');
 			}			
@@ -218,6 +230,11 @@ app
 
   .post("/register/user", async (req, res) => {
     const body = req.body;
+    const salt = await bcrypt.genSalt(10);
+    let plainPassword = body.password;
+
+    const encryptedPassword = await bcrypt.hash(plainPassword, salt);
+
 
     await database.execute(
       `
@@ -233,7 +250,7 @@ app
         `,
       {
         username: body.username,
-        password: body.password,
+        password: encryptedPassword,
         email: body.email
       }
     );
