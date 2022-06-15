@@ -20,7 +20,7 @@ $(document).ready(function () {
   .always(function () {
   });
 
-  $("form").on("submit", function (event) {
+  $("#testForm").on("submit", function (event) {
     event.preventDefault();
     $.LoadingOverlay("show");
   
