@@ -15,10 +15,10 @@ const app = express();
 const port = process.env.PORT || 8888;
 
 // connection to heroku
-// const mySQLString = 'mysql://b9a42c0a1b8343:7ec8508b@eu-cdbr-west-02.cleardb.net/heroku_252e1419c201912?reconnect=true';
+const mySQLString = 'mysql://b9a42c0a1b8343:7ec8508b@eu-cdbr-west-02.cleardb.net/heroku_252e1419c201912?reconnect=true';
 //connection to local db - mysql
-const mySQLString =
-  "mysql://root:asperina123@localhost/new_test_db?reconnect=true";
+// const mySQLString =
+//   "mysql://root:asperina123@localhost/new_test_db?reconnect=true";
 const database = new Prohairesis(mySQLString);
 
 app
