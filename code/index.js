@@ -176,12 +176,12 @@ app
   })
 
   .get("/detail", async (req, res) => {
-    if (!request.session.loggedin) {
+    if (!req.session.loggedin) {
       // Output username
-      response.sendFile(path.join(__dirname+'/public' + '/register.html'));
+      res.sendFile(path.join(__dirname+'/public' + '/register.html'));
     } else {
       // logged in
-      response.sendFile(path.join(__dirname+'/public' + '/detail.html'));
+      res.sendFile(path.join(__dirname+'/public' + '/detail.html'));
     }
   })
 
