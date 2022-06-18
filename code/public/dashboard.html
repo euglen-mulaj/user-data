@@ -65,6 +65,14 @@
         </form>
     </div>
 
+    <div>
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+      <label class="form-label" for="customFile">Upload file to massive insert records</label>
+      <input name="uploadFile" type="file" class="form-control" id="customFile" />
+      <button type="submit" class="btn btn-primary btn-lg">Upload</button>
+    </form>
+    </div>
+
     <div class="user-table">
       <table id="tableData">
         <thead>
