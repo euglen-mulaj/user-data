@@ -281,7 +281,7 @@ app
     res.end();
   })
   //post to upload file
-  .post("/upload", (req, res) => {
+  .post("/upload",async (req, res) => {
     // Reading our test file
     console.log(req.file);
     var tmp_path = req.file.path;
@@ -296,20 +296,53 @@ app
   // src.on('error', function(err) { res.render('error'); });
   console.log(target_path);
 
-    const file = reader.readFile('./' + target_path);
+    // const file = reader.readFile(target_path);
+    const file = reader.readFile('src/uploads/' + req.file.filename);
     let data = [];
 
-    const sheets = file.SheetNames;
-    console.log('sheets: ' + sheets);
+    var sheet_name_list = file.SheetNames;
+    var xlData = reader.utils.sheet_to_json(file.Sheets[sheet_name_list[0]]);
+    console.log(xlData);
 
-    for (let i = 0; i < sheets.length; i++) {
-      const temp = reader.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
-      console.log('sheet1: ' + file.Sheets);
-      console.log('TEMP: ' + temp);
-      temp.forEach((res) => {
-        data.push(res);
-      });
+    for(let i=0; i < xlData.length; i++){
+        const firstName = xlData[i].firstname;
+        const lastName = xlData[i].lastname;
+        const email = xlData[i].email;
+
+        await database.execute(
+          `
+                INSERT INTO user_data (
+                  firstName,
+                  lastName,
+                  email,
+                  date_added
+                ) VALUES(
+                    @firstName,
+                    @lastName,
+                    @email,
+                    NOW()
+                )
+            `,
+          {
+            firstName: firstName,
+            lastName: lastName,
+            email: email
+          }
+        );
     }
+
+
+    // const sheets = file.SheetNames;
+    // console.log('sheetsxxxxxxx: ' + sheets);
+
+    // for (let i = 0; i < sheets.length; i++) {
+    //   const temp = reader.utils.sheet_to_json(file.Sheets['Sheet1']);
+    //   console.log('sheet1: ' + JSON.stringify(file.Sheets));
+    //   console.log('TEMP: ' + temp);
+    //   temp.forEach((res) => {
+    //     data.push(res);
+    //   });
+    // }
 
     // Printing data
     console.log(data);
